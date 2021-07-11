@@ -50,6 +50,7 @@ class BluetoothA2dpConnector(
         connectMethodName: String,
     ): Boolean {
         return try {
+            // the A2DP connection methods are hidden in the public API.
             val connectMethod = BluetoothA2dp::class.java.getDeclaredMethod(
                 connectMethodName,
                 BluetoothDevice::class.java,
