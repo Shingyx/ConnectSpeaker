@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.github.shingyx.connectspeaker.BuildConfig
 import com.github.shingyx.connectspeaker.R
+import com.github.shingyx.connectspeaker.data.BluetoothStateReceiver
 import com.github.shingyx.connectspeaker.data.ConnectSpeakerClient
 import com.github.shingyx.connectspeaker.data.Preferences
 import com.github.shingyx.connectspeaker.databinding.ActivityMainBinding
@@ -121,13 +122,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             }
         }
 
-/* TODO
-        select_speaker_container.error = if (devicesInfo.isEmpty()) {
+        binding.selectSpeakerContainer.error = if (devicesInfo.isEmpty()) {
             getString(R.string.no_devices_found)
         } else {
             null
         }
-*/
 
         adapter.updateItems(devicesInfo)
     }

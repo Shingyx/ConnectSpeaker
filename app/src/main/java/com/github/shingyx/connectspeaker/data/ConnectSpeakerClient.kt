@@ -2,10 +2,15 @@ package com.github.shingyx.connectspeaker.data
 
 import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothProfile
 import android.content.Context
 import androidx.annotation.StringRes
 import com.github.shingyx.connectspeaker.R
+import com.github.shingyx.connectspeaker.data.bluetootha2dp.BluetoothA2dpConnector
+import com.github.shingyx.connectspeaker.data.bluetootha2dp.ConnectStrategy
+import com.github.shingyx.connectspeaker.data.bluetootha2dp.DisconnectStrategy
+import com.github.shingyx.connectspeaker.data.bluetootha2dp.IConnectionStrategy
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
@@ -56,7 +61,7 @@ private class ConnectSpeakerClientInternal(
 ) {
     suspend fun toggleConnection() {
         try {
-            withTimeout(TIMEOUT) {
+            withTimeout(TIMEOUT_ALL) {
                 toggleConnectionNoTimeout()
             }
         } catch (e: Exception) {
@@ -79,23 +84,30 @@ private class ConnectSpeakerClientInternal(
             ?: throw ExceptionWithStringRes("Speaker not paired", R.string.error_speaker_unpaired)
 
         val bluetoothA2dp = getBluetoothA2dpService(bluetoothAdapter)
-
         val isConnected = bluetoothA2dp.connectedDevices.contains(device)
-        Timber.d("$deviceInfo isConnected=$isConnected")
 
-        val bluetoothA2dpConnector = BluetoothA2dpConnector(bluetoothA2dp)
-        val successfullyStarted =
-            if (!isConnected) {
-                reportProgressWithResId(R.string.connecting_to_speaker)
-                bluetoothA2dpConnector.connectDevice(device)
-                reportProgressWithResId(R.string.connected_to_speaker)
-            } else {
-                reportProgressWithResId(R.string.disconnecting_from_speaker)
-                bluetoothA2dpConnector.disconnectDevice(device)
-                reportProgressWithResId(R.string.disconnected_from_speaker)
-            }
+        val bluetoothA2dpConnector = BluetoothA2dpConnector(context, bluetoothA2dp)
 
-        Timber.d("successfullyStarted=$successfullyStarted")
+        val connectionStrategy = if (!isConnected) {
+            ConnectStrategy(bluetoothA2dpConnector)
+        } else {
+            DisconnectStrategy(bluetoothA2dpConnector)
+        }
+        applyConnectionStrategy(connectionStrategy, device)
+    }
+
+    private suspend fun applyConnectionStrategy(
+        strategy: IConnectionStrategy,
+        device: BluetoothDevice,
+    ) {
+        reportProgressWithResId(strategy.startingMessageResId)
+
+        val success = strategy.connectionMethod(device, TIMEOUT_CONNECT)
+        if (!success) {
+            throw ExceptionWithStringRes("Toggling connection failed", strategy.failureMessageResId)
+        }
+
+        reportProgressWithResId(strategy.successMessageResId)
     }
 
     private suspend fun getBluetoothA2dpService(bluetoothAdapter: BluetoothAdapter): BluetoothA2dp {
@@ -115,7 +127,7 @@ private class ConnectSpeakerClientInternal(
             BluetoothProfile.A2DP,
         )
 
-        return withTimeoutOrNull(TIMEOUT / 2) { deferred.await() }
+        return withTimeoutOrNull(TIMEOUT_GET_SERVICE) { deferred.await() }
             ?: throw ExceptionWithStringRes(
                 "Failed to get BluetoothA2dp",
                 R.string.error_null_bluetooth_a2dp,
@@ -128,6 +140,8 @@ private class ConnectSpeakerClientInternal(
     }
 
     companion object {
-        const val TIMEOUT = 10000L
+        private const val TIMEOUT_ALL = 15000L
+        private const val TIMEOUT_GET_SERVICE = 5000L
+        private const val TIMEOUT_CONNECT = 10000L
     }
 }

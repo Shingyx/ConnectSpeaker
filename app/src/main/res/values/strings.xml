@@ -20,6 +20,8 @@
     <string name="error_toggling_already_in_progress">Toggling %1$s already in progress</string>
     <string name="error_timed_out">Timed out toggling %1$s\'s connection.</string>
     <string name="error_unknown">Unknown error.</string>
+    <string name="error_connecting_to_speaker_failed">Failed to connect to %1$s.</string>
+    <string name="error_disconnecting_from_speaker_failed">Failed to disconnect from %1$s.</string>
 
     <string name="create_shortcut_choose_speaker">Choose speaker for widget</string>
 </resources>

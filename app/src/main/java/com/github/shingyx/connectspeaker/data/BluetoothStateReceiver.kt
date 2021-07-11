@@ -1,4 +1,4 @@
-package com.github.shingyx.connectspeaker.ui
+package com.github.shingyx.connectspeaker.data
 
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
