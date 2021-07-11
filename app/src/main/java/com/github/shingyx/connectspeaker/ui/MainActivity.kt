@@ -7,13 +7,14 @@ import androidx.appcompat.app.AppCompatActivity
 import com.github.shingyx.connectspeaker.R
 import com.github.shingyx.connectspeaker.data.ConnectSpeakerClient
 import com.github.shingyx.connectspeaker.data.Preferences
+import com.github.shingyx.connectspeaker.databinding.ActivityMainBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
+    private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: BluetoothDeviceAdapter
     private lateinit var bluetoothStateReceiver: BluetoothStateReceiver
 
@@ -26,21 +27,23 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         adapter = BluetoothDeviceAdapter(this)
         bluetoothStateReceiver = BluetoothStateReceiver(this::updateBluetoothDevices)
 
-        select_speaker.setAdapter(adapter)
-        select_speaker.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+        binding.selectSpeaker.setAdapter(adapter)
+        binding.selectSpeaker.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             Preferences.bluetoothDeviceInfo = adapter.getItem(position)
-            toggle_connection_button.isEnabled = true
+            binding.toggleConnectionButton.isEnabled = true
         }
-        select_speaker.setText(Preferences.bluetoothDeviceInfo?.toString())
-        select_speaker.requestFocus()
+        binding.selectSpeaker.setText(Preferences.bluetoothDeviceInfo?.toString())
+        binding.selectSpeaker.requestFocus()
 
-        toggle_connection_button.isEnabled = Preferences.bluetoothDeviceInfo != null
-        toggle_connection_button.setOnClickListener { launch { toggleConnection() } }
+        binding.toggleConnectionButton.isEnabled = Preferences.bluetoothDeviceInfo != null
+        binding.toggleConnectionButton.setOnClickListener { launch { toggleConnection() } }
 
         registerReceiver(bluetoothStateReceiver, BluetoothStateReceiver.intentFilter())
     }
@@ -48,7 +51,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     override fun onResume() {
         super.onResume()
         updateBluetoothDevices()
-        select_speaker.dismissDropDown()
+        binding.selectSpeaker.dismissDropDown()
     }
 
     override fun onDestroy() {
