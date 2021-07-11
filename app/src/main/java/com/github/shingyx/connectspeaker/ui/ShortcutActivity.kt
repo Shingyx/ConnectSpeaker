@@ -56,11 +56,11 @@ class ShortcutActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         fun createShortcutIntent(
             context: Context,
-            bluetoothDeviceInfo: BluetoothDeviceInfo?,
+            bluetoothDeviceInfo: BluetoothDeviceInfo,
         ): Intent {
             val shortcutIntent = Intent(ACTION_TOGGLE, null, context, ShortcutActivity::class.java)
-            bluetoothDeviceInfo?.addToIntent(shortcutIntent)
-            val shortcutName = bluetoothDeviceInfo?.name ?: context.getString(R.string.app_name)
+            bluetoothDeviceInfo.addToIntent(shortcutIntent)
+            val shortcutName = bluetoothDeviceInfo.name
             val iconRes = Intent.ShortcutIconResource.fromContext(context, R.mipmap.ic_launcher)
 
             @Suppress("DEPRECATION") // Use deprecated approach for no icon badge
