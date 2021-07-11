@@ -35,7 +35,11 @@ class ShortcutActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     }
 
     private suspend fun toggleConnection(deviceInfo: BluetoothDeviceInfo) {
-        ConnectSpeakerClient.toggleConnection(this, deviceInfo)
+        ConnectSpeakerClient.toggleConnection(this, deviceInfo) { progressMessage ->
+            runOnUiThread {
+                updateToast(progressMessage)
+            }
+        }
     }
 
     private fun updateToast(text: String) {

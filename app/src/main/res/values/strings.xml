@@ -3,11 +3,23 @@
 
     <string name="speaker">Speaker</string>
     <string name="toggle_connection">Toggle Connection</string>
+    <string name="version">Version %1$s</string>
     <string name="no_devices_found">No paired Bluetooth devices found!</string>
     <string name="bluetooth_turned_off_alert">Bluetooth is turned off. Please turn Bluetooth on then come back to the app.</string>
     <string name="select_speaker">Please select your speaker first.</string>
 
+    <string name="toggling_connection_with_speaker">Toggling connection with %1$s…</string>
+    <string name="connecting_to_speaker">Connecting to %1$s…</string>
+    <string name="disconnecting_from_speaker">Disconnecting from %1$s…</string>
+    <string name="connected_to_speaker">Connected to %1$s!</string>
+    <string name="disconnected_from_speaker">Disconnected from %1$s!</string>
+
     <string name="error_bluetooth_disabled">Bluetooth is turned off. Please turn Bluetooth on then try again.</string>
+    <string name="error_speaker_unpaired">Could not find %1$s. Has it been unpaired?</string>
+    <string name="error_null_bluetooth_a2dp">Checking Bluetooth audio connections has failed.</string>
+    <string name="error_toggling_already_in_progress">Toggling %1$s already in progress</string>
+    <string name="error_timed_out">Timed out toggling %1$s\'s connection.</string>
+    <string name="error_unknown">Unknown error.</string>
 
     <string name="create_shortcut_choose_speaker">Choose speaker for widget</string>
 </resources>

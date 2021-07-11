@@ -1,9 +1,15 @@
 package com.github.shingyx.connectspeaker.ui
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.github.shingyx.connectspeaker.BuildConfig
 import com.github.shingyx.connectspeaker.R
 import com.github.shingyx.connectspeaker.data.ConnectSpeakerClient
 import com.github.shingyx.connectspeaker.data.Preferences
@@ -15,6 +21,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var handler: Handler
     private lateinit var adapter: BluetoothDeviceAdapter
     private lateinit var bluetoothStateReceiver: BluetoothStateReceiver
 
@@ -31,6 +38,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
+        handler = Handler(Looper.getMainLooper())
         adapter = BluetoothDeviceAdapter(this)
         bluetoothStateReceiver = BluetoothStateReceiver(this::updateBluetoothDevices)
 
@@ -45,6 +53,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         binding.toggleConnectionButton.isEnabled = Preferences.bluetoothDeviceInfo != null
         binding.toggleConnectionButton.setOnClickListener { launch { toggleConnection() } }
+
+        binding.version.text = getString(R.string.version, BuildConfig.VERSION_NAME)
 
         registerReceiver(bluetoothStateReceiver, BluetoothStateReceiver.intentFilter())
     }
@@ -64,7 +74,39 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         val deviceInfo = Preferences.bluetoothDeviceInfo
             ?: return Toast.makeText(this, R.string.select_speaker, Toast.LENGTH_LONG).show()
 
-        ConnectSpeakerClient.toggleConnection(this, deviceInfo)
+        handler.removeCallbacksAndMessages(null)
+
+        binding.toggleConnectionButton.isEnabled = false
+        fadeView(binding.progressBar, true)
+        binding.progressDescription.text = ""
+        fadeView(binding.progressDescription, true)
+
+        ConnectSpeakerClient.toggleConnection(this, deviceInfo) { progressMessage ->
+            runOnUiThread {
+                binding.progressDescription.text = progressMessage
+            }
+        }
+
+        binding.toggleConnectionButton.isEnabled = true
+        fadeView(binding.progressBar, false)
+        handler.postDelayed(
+            { fadeView(binding.progressDescription, false) },
+            4000,
+        )
+    }
+
+    private fun fadeView(view: View, show: Boolean) {
+        val newAlpha = if (show) 1f else 0f
+        view.visibility = View.VISIBLE
+        view.alpha = 1f - newAlpha
+        view.animate()
+            .setDuration(resources.getInteger(android.R.integer.config_shortAnimTime).toLong())
+            .alpha(newAlpha)
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator?) {
+                    view.visibility = if (show) View.VISIBLE else View.GONE
+                }
+            })
     }
 
     private fun updateBluetoothDevices() {
