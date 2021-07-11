@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Connect Speaker</string>
+    <string name="speaker">Speaker</string>
+    <string name="toggle_connection">Toggle Connection</string>
+    <string name="bluetooth_turned_off_alert">Bluetooth is turned off. Please turn Bluetooth on then come back to the app.</string>
+</resources>
