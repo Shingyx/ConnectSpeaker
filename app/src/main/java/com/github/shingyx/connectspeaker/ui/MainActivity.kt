@@ -1,18 +1,19 @@
 package com.github.shingyx.connectspeaker.ui
 
-import android.bluetooth.BluetoothAdapter
 import android.os.Bundle
 import android.widget.AdapterView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.github.shingyx.connectspeaker.R
-import com.github.shingyx.connectspeaker.data.BluetoothDeviceInfo
+import com.github.shingyx.connectspeaker.data.ConnectSpeakerClient
 import com.github.shingyx.connectspeaker.data.Preferences
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
-import timber.log.Timber
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     private lateinit var adapter: BluetoothDeviceAdapter
     private lateinit var bluetoothStateReceiver: BluetoothStateReceiver
 
@@ -39,9 +40,7 @@ class MainActivity : AppCompatActivity() {
         select_speaker.requestFocus()
 
         toggle_connection_button.isEnabled = Preferences.bluetoothDeviceInfo != null
-        toggle_connection_button.setOnClickListener {
-            Toast.makeText(this, "TODO TESTING", Toast.LENGTH_LONG).show()
-        }
+        toggle_connection_button.setOnClickListener { launch { toggleConnection() } }
 
         registerReceiver(bluetoothStateReceiver, BluetoothStateReceiver.intentFilter())
     }
@@ -57,8 +56,15 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    private suspend fun toggleConnection() {
+        val deviceInfo = Preferences.bluetoothDeviceInfo
+            ?: return Toast.makeText(this, R.string.select_speaker, Toast.LENGTH_LONG).show()
+
+        ConnectSpeakerClient.toggleConnection(this, deviceInfo)
+    }
+
     private fun updateBluetoothDevices() {
-        var devicesInfo = getPairedDevicesInfo()
+        var devicesInfo = ConnectSpeakerClient.getPairedDevicesInfo()
 
         if (devicesInfo == null) {
             bluetoothOffAlertDialog.value.show()
@@ -79,20 +85,4 @@ class MainActivity : AppCompatActivity() {
 
         adapter.updateItems(devicesInfo)
     }
-
-    private fun getPairedDevicesInfo(): List<BluetoothDeviceInfo>? {
-        try {
-            val bondedDevices = BluetoothAdapter.getDefaultAdapter()
-                ?.takeIf { it.isEnabled }
-                ?.bondedDevices
-
-            if (bondedDevices != null) {
-                return bondedDevices.map { BluetoothDeviceInfo(it) }.sorted()
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to read bonded devices")
-        }
-        return null
-    }
-
 }
