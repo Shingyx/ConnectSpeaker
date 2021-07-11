@@ -52,7 +52,7 @@ class ShortcutActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         fun createShortcutIntent(
             context: Context,
-            bluetoothDeviceInfo: BluetoothDeviceInfo?
+            bluetoothDeviceInfo: BluetoothDeviceInfo?,
         ): Intent {
             val shortcutIntent = Intent(ACTION_TOGGLE, null, context, ShortcutActivity::class.java)
             bluetoothDeviceInfo?.addToIntent(shortcutIntent)

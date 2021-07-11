@@ -29,15 +29,17 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
 
         adapter = BluetoothDeviceAdapter(this)
         bluetoothStateReceiver = BluetoothStateReceiver(this::updateBluetoothDevices)
 
         binding.selectSpeaker.setAdapter(adapter)
-        binding.selectSpeaker.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            Preferences.bluetoothDeviceInfo = adapter.getItem(position)
-            binding.toggleConnectionButton.isEnabled = true
-        }
+        binding.selectSpeaker.onItemClickListener =
+            AdapterView.OnItemClickListener { _, _, position, _ ->
+                Preferences.bluetoothDeviceInfo = adapter.getItem(position)
+                binding.toggleConnectionButton.isEnabled = true
+            }
         binding.selectSpeaker.setText(Preferences.bluetoothDeviceInfo?.toString())
         binding.selectSpeaker.requestFocus()
 

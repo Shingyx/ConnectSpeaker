@@ -18,6 +18,7 @@ class CreateShortcutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCreateShortcutBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
 
         if (intent.action != Intent.ACTION_CREATE_SHORTCUT) {
             Timber.w("Unexpected intent action ${intent.action}")
