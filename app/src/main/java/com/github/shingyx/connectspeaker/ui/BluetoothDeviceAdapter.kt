@@ -12,12 +12,13 @@ import com.github.shingyx.connectspeaker.data.BluetoothDeviceInfo
 
 class BluetoothDeviceAdapter(
     private val activity: Activity,
-    private var devices: List<BluetoothDeviceInfo> = emptyList()
 ) : BaseAdapter(), Filterable {
+    private val devices = mutableListOf<BluetoothDeviceInfo>()
     private val filter = NoFilter()
 
     fun updateItems(items: List<BluetoothDeviceInfo>) {
-        devices = items
+        devices.clear()
+        devices.addAll(items)
         notifyDataSetChanged()
     }
 

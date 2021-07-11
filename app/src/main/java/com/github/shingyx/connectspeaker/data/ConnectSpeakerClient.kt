@@ -52,14 +52,24 @@ private class ConnectSpeakerClientInternal(
     suspend fun toggleConnection() {
         val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
-        val bluetoothDevice = bluetoothAdapter.bondedDevices.find { it.address == deviceInfo.address }
+        val device = bluetoothAdapter.bondedDevices.find { it.address == deviceInfo.address }
             ?: return Timber.w(Exception("Speaker not paired"))
 
         val bluetoothA2dp = getBluetoothA2dpService(bluetoothAdapter)
             ?: return Timber.w(Exception("Failed to get BluetoothA2dp"))
 
-        val isConnected = bluetoothA2dp.connectedDevices.contains(bluetoothDevice)
+        val isConnected = bluetoothA2dp.connectedDevices.contains(device)
         Timber.d("$deviceInfo isConnected=$isConnected")
+
+        val bluetoothA2dpConnector = BluetoothA2dpConnector(bluetoothA2dp)
+        val successfullyStarted =
+            if (!isConnected) {
+                bluetoothA2dpConnector.connectDevice(device)
+            } else {
+                bluetoothA2dpConnector.disconnectDevice(device)
+            }
+
+        Timber.d("successfullyStarted=$successfullyStarted")
     }
 
     private suspend fun getBluetoothA2dpService(bluetoothAdapter: BluetoothAdapter): BluetoothA2dp? {

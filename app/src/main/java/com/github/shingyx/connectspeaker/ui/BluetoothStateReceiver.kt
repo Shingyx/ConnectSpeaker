@@ -7,7 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 
 class BluetoothStateReceiver(
-    private val onStateChanged: () -> Unit
+    private val onStateChanged: () -> Unit,
 ) : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == BluetoothAdapter.ACTION_STATE_CHANGED) {
