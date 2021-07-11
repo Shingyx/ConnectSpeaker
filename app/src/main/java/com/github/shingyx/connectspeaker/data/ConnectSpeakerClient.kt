@@ -17,52 +17,15 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
-object ConnectSpeakerClient {
-    @Volatile
-    private var inProgress = false
-
-    suspend fun toggleConnection(
-        context: Context,
-        deviceInfo: BluetoothDeviceInfo,
-        reportProgress: (String) -> Unit,
-    ) {
-        if (inProgress) {
-            Timber.w("Toggling already in progress")
-            return reportProgress(
-                context.getString(R.string.error_toggling_already_in_progress, deviceInfo.name),
-            )
-        }
-
-        inProgress = true
-        ConnectSpeakerClientInternal(context, deviceInfo, reportProgress).toggleConnection()
-        inProgress = false
-    }
-
-    fun getPairedDevicesInfo(): List<BluetoothDeviceInfo>? {
-        try {
-            val bondedDevices = BluetoothAdapter.getDefaultAdapter()
-                ?.takeIf { it.isEnabled }
-                ?.bondedDevices
-
-            if (bondedDevices != null) {
-                return bondedDevices.map(::BluetoothDeviceInfo).sorted()
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to read bonded devices")
-        }
-        return null
-    }
-}
-
-private class ConnectSpeakerClientInternal(
+class ConnectSpeakerClient private constructor(
     private val context: Context,
     private val deviceInfo: BluetoothDeviceInfo,
     private val reportProgress: (String) -> Unit,
 ) {
-    suspend fun toggleConnection() {
+    private suspend fun toggleConnection() {
         try {
             withTimeout(TIMEOUT_ALL) {
-                toggleConnectionNoTimeout()
+                toggleConnectionInternal()
             }
         } catch (e: Exception) {
             val messageResId = when (e) {
@@ -74,7 +37,7 @@ private class ConnectSpeakerClientInternal(
         }
     }
 
-    private suspend fun toggleConnectionNoTimeout() {
+    private suspend fun toggleConnectionInternal() {
         reportProgressWithResId(R.string.starting)
 
         val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()?.takeIf { it.isEnabled }
@@ -143,5 +106,41 @@ private class ConnectSpeakerClientInternal(
         private const val TIMEOUT_ALL = 15000L
         private const val TIMEOUT_GET_SERVICE = 5000L
         private const val TIMEOUT_CONNECT = 10000L
+
+        @Volatile
+        private var inProgress = false
+
+        suspend fun toggleConnection(
+            context: Context,
+            deviceInfo: BluetoothDeviceInfo,
+            reportProgress: (String) -> Unit,
+        ) {
+            if (inProgress) {
+                Timber.w("Toggling already in progress")
+                return reportProgress(
+                    context.getString(R.string.error_toggling_already_in_progress, deviceInfo.name),
+                )
+            }
+
+            inProgress = true
+            val client = ConnectSpeakerClient(context, deviceInfo, reportProgress)
+            client.toggleConnection()
+            inProgress = false
+        }
+
+        fun getPairedDevicesInfo(): List<BluetoothDeviceInfo>? {
+            try {
+                val bondedDevices = BluetoothAdapter.getDefaultAdapter()
+                    ?.takeIf { it.isEnabled }
+                    ?.bondedDevices
+
+                if (bondedDevices != null) {
+                    return bondedDevices.map(::BluetoothDeviceInfo).sorted()
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to read bonded devices")
+            }
+            return null
+        }
     }
 }
