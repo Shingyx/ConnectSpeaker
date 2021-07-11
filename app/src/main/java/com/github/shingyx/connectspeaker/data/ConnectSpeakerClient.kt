@@ -75,7 +75,7 @@ private class ConnectSpeakerClientInternal(
     }
 
     private suspend fun toggleConnectionNoTimeout() {
-        reportProgressWithResId(R.string.toggling_connection_with_speaker)
+        reportProgressWithResId(R.string.starting)
 
         val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()?.takeIf { it.isEnabled }
             ?: throw ExceptionWithStringRes("Bluetooth disabled", R.string.error_bluetooth_disabled)

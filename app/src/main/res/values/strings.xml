@@ -8,7 +8,7 @@
     <string name="bluetooth_turned_off_alert">Bluetooth is turned off. Please turn Bluetooth on then come back to the app.</string>
     <string name="select_speaker">Please select your speaker first.</string>
 
-    <string name="toggling_connection_with_speaker">Toggling connection with %1$s…</string>
+    <string name="starting">Starting…</string>
     <string name="connecting_to_speaker">Connecting to %1$s…</string>
     <string name="disconnecting_from_speaker">Disconnecting from %1$s…</string>
     <string name="connected_to_speaker">Connected to %1$s!</string>
