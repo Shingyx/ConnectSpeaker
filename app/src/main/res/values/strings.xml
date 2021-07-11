@@ -1,7 +1,13 @@
 <resources>
     <string name="app_name">Connect Speaker</string>
+
     <string name="speaker">Speaker</string>
     <string name="toggle_connection">Toggle Connection</string>
+    <string name="no_devices_found">No paired Bluetooth devices found!</string>
     <string name="bluetooth_turned_off_alert">Bluetooth is turned off. Please turn Bluetooth on then come back to the app.</string>
     <string name="select_speaker">Please select your speaker first.</string>
+
+    <string name="error_bluetooth_disabled">Bluetooth is turned off. Please turn Bluetooth on then try again.</string>
+
+    <string name="create_shortcut_choose_speaker">Choose speaker for widget</string>
 </resources>

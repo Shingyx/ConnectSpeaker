@@ -28,8 +28,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
 
         adapter = BluetoothDeviceAdapter(this)
         bluetoothStateReceiver = BluetoothStateReceiver(this::updateBluetoothDevices)

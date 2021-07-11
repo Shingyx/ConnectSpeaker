@@ -21,6 +21,21 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.CreateShortcutActivity"
+            android:taskAffinity=".shortcut"
+            android:theme="@style/Theme.ConnectSpeaker">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.ShortcutActivity"
+            android:exported="true"
+            android:taskAffinity=".shortcut"
+            android:theme="@android:style/Theme.NoDisplay" />
+
     </application>
 
 </manifest>
