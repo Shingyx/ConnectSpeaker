@@ -4,7 +4,23 @@ plugins {
     id 'org.jlleitschuh.gradle.ktlint'
 }
 
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+try {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+} catch (FileNotFoundException ignored) {
+    logger.warn('keystore.properties not found')
+}
+
 android {
+    signingConfigs {
+        release {
+            storeFile rootProject.file(keystoreProperties['storeFile'] ?: "default.jks")
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+    }
     compileSdkVersion 30
 
     defaultConfig {
@@ -22,6 +38,7 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
