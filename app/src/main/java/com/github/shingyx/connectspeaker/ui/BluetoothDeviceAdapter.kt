@@ -3,6 +3,7 @@ package com.github.shingyx.connectspeaker.ui
 import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.Filter
 import android.widget.Filterable
@@ -43,6 +44,12 @@ class BluetoothDeviceAdapter(
 
     override fun getFilter(): Filter {
         return filter
+    }
+
+    fun onItemClick(onItemClick: (item: BluetoothDeviceInfo) -> Unit): AdapterView.OnItemClickListener {
+        return AdapterView.OnItemClickListener { _, _, position, _ ->
+            onItemClick.invoke(getItem(position))
+        }
     }
 
     private inner class NoFilter : Filter() {

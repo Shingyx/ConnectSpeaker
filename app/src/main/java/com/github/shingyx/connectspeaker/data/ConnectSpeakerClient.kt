@@ -1,11 +1,18 @@
 package com.github.shingyx.connectspeaker.data
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.annotation.RequiresPermission
 import androidx.annotation.StringRes
+import androidx.core.app.ActivityCompat
 import com.github.shingyx.connectspeaker.R
 import com.github.shingyx.connectspeaker.data.bluetootha2dp.BluetoothA2dpConnector
 import com.github.shingyx.connectspeaker.data.bluetootha2dp.ConnectStrategy
@@ -22,6 +29,7 @@ class ConnectSpeakerClient private constructor(
     private val deviceInfo: BluetoothDeviceInfo,
     private val reportProgress: (String) -> Unit,
 ) {
+    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     private suspend fun toggleConnection() {
         try {
             withTimeout(TIMEOUT_ALL) {
@@ -37,10 +45,12 @@ class ConnectSpeakerClient private constructor(
         }
     }
 
+    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     private suspend fun toggleConnectionInternal() {
         reportProgressWithResId(R.string.starting)
 
-        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()?.takeIf { it.isEnabled }
+        val bluetoothAdapter = context.getSystemService(BluetoothManager::class.java).adapter
+            ?.takeIf { it.isEnabled }
             ?: throw ExceptionWithStringRes("Bluetooth disabled", R.string.error_bluetooth_disabled)
 
         val device = bluetoothAdapter.bondedDevices.find { it.address == deviceInfo.address }
@@ -110,6 +120,7 @@ class ConnectSpeakerClient private constructor(
         @Volatile
         private var inProgress = false
 
+        @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
         suspend fun toggleConnection(
             context: Context,
             deviceInfo: BluetoothDeviceInfo,
@@ -128,19 +139,28 @@ class ConnectSpeakerClient private constructor(
             inProgress = false
         }
 
-        fun getPairedDevicesInfo(): List<BluetoothDeviceInfo>? {
+        @SuppressLint("MissingPermission")
+        fun getPairedDevicesInfo(context: Context): List<BluetoothDeviceInfo>? {
             try {
-                val bondedDevices = BluetoothAdapter.getDefaultAdapter()
+                val bondedDevices = context.getSystemService(BluetoothManager::class.java).adapter
                     ?.takeIf { it.isEnabled }
                     ?.bondedDevices
 
                 if (bondedDevices != null) {
-                    return bondedDevices.map(::BluetoothDeviceInfo).sorted()
+                    return bondedDevices.map { BluetoothDeviceInfo(it.name, it.address) }.sorted()
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Failed to read bonded devices")
             }
             return null
+        }
+
+        fun checkBluetoothConnectPermission(context: Context): Boolean {
+            return Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+                ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) == PackageManager.PERMISSION_GRANTED
         }
     }
 }

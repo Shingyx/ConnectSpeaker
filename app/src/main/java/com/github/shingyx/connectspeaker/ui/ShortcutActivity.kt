@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import com.github.shingyx.connectspeaker.R
 import com.github.shingyx.connectspeaker.data.BluetoothDeviceInfo
@@ -24,8 +25,10 @@ class ShortcutActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         val deviceInfo = BluetoothDeviceInfo.createFromIntent(intent)
 
-        if (deviceInfo == null) {
-            updateToast(getString(R.string.select_speaker))
+        if (deviceInfo == null || !ConnectSpeakerClient.checkBluetoothConnectPermission(this)) {
+            if (deviceInfo == null) {
+                updateToast(getString(R.string.select_speaker))
+            }
             val intent = Intent(this, MainActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
@@ -34,6 +37,7 @@ class ShortcutActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         }
     }
 
+    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     private suspend fun toggleConnection(deviceInfo: BluetoothDeviceInfo) {
         ConnectSpeakerClient.toggleConnection(this, deviceInfo) { progressMessage ->
             runOnUiThread {

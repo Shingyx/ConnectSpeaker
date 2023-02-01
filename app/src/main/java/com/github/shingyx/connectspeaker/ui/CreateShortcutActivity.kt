@@ -3,8 +3,8 @@ package com.github.shingyx.connectspeaker.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.widget.AdapterView
 import android.widget.Toast
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import com.github.shingyx.connectspeaker.R
 import com.github.shingyx.connectspeaker.data.ConnectSpeakerClient
@@ -25,21 +25,25 @@ class CreateShortcutActivity : AppCompatActivity() {
             return finish()
         }
 
-        val deviceAdapter = createBluetoothDeviceAdapter()
+        if (!ConnectSpeakerClient.checkBluetoothConnectPermission(this)) {
+            val intent = Intent(this, MainActivity::class.java)
+            return startActivity(intent)
+        }
+
+        val adapter = createBluetoothDeviceAdapter()
             ?: return finish()
 
-        binding.speakerList.adapter = deviceAdapter
-        binding.speakerList.onItemClickListener =
-            AdapterView.OnItemClickListener { _, _, position, _ ->
-                val selectedSpeaker = deviceAdapter.getItem(position)
-                val intent = ShortcutActivity.createShortcutIntent(this, selectedSpeaker)
-                setResult(Activity.RESULT_OK, intent)
-                finish()
-            }
+        binding.speakerList.adapter = adapter
+        binding.speakerList.onItemClickListener = adapter.onItemClick { item ->
+            val intent = ShortcutActivity.createShortcutIntent(this, item)
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
     }
 
+    @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     private fun createBluetoothDeviceAdapter(): BluetoothDeviceAdapter? {
-        val devicesInfo = ConnectSpeakerClient.getPairedDevicesInfo()
+        val devicesInfo = ConnectSpeakerClient.getPairedDevicesInfo(this)
 
         if (devicesInfo == null) {
             Toast.makeText(this, R.string.error_bluetooth_disabled, Toast.LENGTH_LONG).show()
