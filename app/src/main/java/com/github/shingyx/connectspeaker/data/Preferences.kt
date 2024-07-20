@@ -26,8 +26,7 @@ object Preferences {
 
     fun initialize(context: Context) {
         if (!this::sharedPreferences.isInitialized) {
-            sharedPreferences =
-                context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
+            sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE)
         }
     }
 }

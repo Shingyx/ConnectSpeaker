@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import com.github.shingyx.connectspeaker.R
+import com.github.shingyx.connectspeaker.data.ConnectAction
 import com.github.shingyx.connectspeaker.data.ConnectSpeakerClient
 import com.github.shingyx.connectspeaker.databinding.ActivityCreateShortcutBinding
 import timber.log.Timber
@@ -30,14 +31,24 @@ class CreateShortcutActivity : AppCompatActivity() {
             return startActivity(intent)
         }
 
-        val adapter =
+        var selectedAction = ConnectAction.TOGGLE
+
+        val actionAdapter = ConnectActionAdapter(this)
+        binding.selectAction.setAdapter(actionAdapter)
+        binding.selectAction.setText(selectedAction.actionStringResId)
+        binding.selectAction.onItemClickListener =
+            actionAdapter.onItemClick { action ->
+                binding.selectAction.setText(action.actionStringResId)
+                selectedAction = action
+            }
+
+        val deviceAdapter =
             createBluetoothDeviceAdapter()
                 ?: return finish()
-
-        binding.speakerList.adapter = adapter
+        binding.speakerList.adapter = deviceAdapter
         binding.speakerList.onItemClickListener =
-            adapter.onItemClick { item ->
-                val intent = ShortcutActivity.createShortcutIntent(this, item)
+            deviceAdapter.onItemClick { deviceInfo ->
+                val intent = ShortcutActivity.createShortcutIntent(this, deviceInfo, selectedAction)
                 setResult(Activity.RESULT_OK, intent)
                 finish()
             }

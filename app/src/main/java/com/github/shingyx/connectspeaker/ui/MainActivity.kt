@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import com.github.shingyx.connectspeaker.BuildConfig
 import com.github.shingyx.connectspeaker.R
 import com.github.shingyx.connectspeaker.data.BluetoothStateReceiver
+import com.github.shingyx.connectspeaker.data.ConnectAction
 import com.github.shingyx.connectspeaker.data.ConnectSpeakerClient
 import com.github.shingyx.connectspeaker.data.Preferences
 import com.github.shingyx.connectspeaker.databinding.ActivityMainBinding
@@ -119,7 +120,7 @@ class MainActivity :
         binding.progressDescription.text = ""
         fadeView(binding.progressDescription, true)
 
-        ConnectSpeakerClient.toggleConnection(this, deviceInfo) { progressMessage ->
+        ConnectSpeakerClient.runConnectAction(this, deviceInfo, ConnectAction.TOGGLE) { progressMessage ->
             runOnUiThread {
                 binding.progressDescription.text = progressMessage
             }
@@ -181,10 +182,7 @@ class MainActivity :
 
     private fun hasPostNotificationsPermission(): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-            ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS,
-            ) == PackageManager.PERMISSION_GRANTED
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
     private fun handlePermissionsResponse(permissions: Map<String, Boolean>) {
         permissions.forEach { (permission, granted) ->

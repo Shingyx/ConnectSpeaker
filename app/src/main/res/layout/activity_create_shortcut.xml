@@ -1,5 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -17,6 +18,23 @@
             app:titleTextColor="?android:attr/titleTextColor" />
 
     </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/select_action_container"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/connect_action">
+
+        <AutoCompleteTextView
+            android:id="@+id/select_action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:editable="false"
+            tools:ignore="Deprecated,LabelFor"
+            tools:text="Toggle" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <ListView
         android:id="@+id/speaker_list"

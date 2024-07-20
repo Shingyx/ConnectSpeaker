@@ -30,10 +30,10 @@ class ConnectSpeakerClient private constructor(
     private val reportProgress: (String) -> Unit,
 ) {
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
-    private suspend fun toggleConnection() {
+    private suspend fun runConnectAction(connectAction: ConnectAction) {
         try {
             withTimeout(TIMEOUT_ALL) {
-                toggleConnectionInternal()
+                runConnectActionInternal(connectAction)
             }
         } catch (e: Exception) {
             val messageResId =
@@ -47,7 +47,7 @@ class ConnectSpeakerClient private constructor(
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
-    private suspend fun toggleConnectionInternal() {
+    private suspend fun runConnectActionInternal(connectAction: ConnectAction) {
         reportProgressWithResId(R.string.starting)
 
         val bluetoothAdapter =
@@ -63,13 +63,25 @@ class ConnectSpeakerClient private constructor(
 
         val bluetoothA2dp = getBluetoothA2dpService(bluetoothAdapter)
         val isConnected = bluetoothA2dp.connectedDevices.contains(device)
+        val shouldConnect =
+            when (connectAction) {
+                ConnectAction.TOGGLE -> !isConnected
+                ConnectAction.CONNECT -> true
+                ConnectAction.DISCONNECT -> false
+            }
 
         val bluetoothA2dpConnector = BluetoothA2dpConnector(context, bluetoothA2dp)
 
         val connectionStrategy =
-            if (!isConnected) {
+            if (shouldConnect) {
+                if (isConnected) {
+                    return reportProgress(context.getString(R.string.error_already_connected, deviceInfo.name))
+                }
                 ConnectStrategy(bluetoothA2dpConnector)
             } else {
+                if (!isConnected) {
+                    return reportProgress(context.getString(R.string.error_already_disconnected, deviceInfo.name))
+                }
                 DisconnectStrategy(bluetoothA2dpConnector)
             }
         applyConnectionStrategy(connectionStrategy, device)
@@ -83,7 +95,7 @@ class ConnectSpeakerClient private constructor(
 
         val success = strategy.connectionMethod(device, TIMEOUT_CONNECT)
         if (!success) {
-            throw ExceptionWithStringRes("Toggling connection failed", strategy.failureMessageResId)
+            throw ExceptionWithStringRes("Connecting failed", strategy.failureMessageResId)
         }
 
         reportProgressWithResId(strategy.successMessageResId)
@@ -110,10 +122,7 @@ class ConnectSpeakerClient private constructor(
         )
 
         return withTimeoutOrNull(TIMEOUT_GET_SERVICE) { deferred.await() }
-            ?: throw ExceptionWithStringRes(
-                "Failed to get BluetoothA2dp",
-                R.string.error_null_bluetooth_a2dp,
-            )
+            ?: throw ExceptionWithStringRes("Failed to get BluetoothA2dp", R.string.error_null_bluetooth_a2dp)
     }
 
     private fun reportProgressWithResId(
@@ -132,21 +141,20 @@ class ConnectSpeakerClient private constructor(
         private var inProgress = false
 
         @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
-        suspend fun toggleConnection(
+        suspend fun runConnectAction(
             context: Context,
             deviceInfo: BluetoothDeviceInfo,
+            connectAction: ConnectAction,
             reportProgress: (String) -> Unit,
         ) {
             if (inProgress) {
-                Timber.w("Toggling already in progress")
-                return reportProgress(
-                    context.getString(R.string.error_toggling_already_in_progress, deviceInfo.name),
-                )
+                Timber.w("Connecting already in progress")
+                return reportProgress(context.getString(R.string.error_connecting_already_in_progress, deviceInfo.name))
             }
 
             inProgress = true
             val client = ConnectSpeakerClient(context, deviceInfo, reportProgress)
-            client.toggleConnection()
+            client.runConnectAction(connectAction)
             inProgress = false
         }
 
@@ -171,9 +179,6 @@ class ConnectSpeakerClient private constructor(
 
         fun checkBluetoothConnectPermission(context: Context): Boolean =
             Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
-                ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                ) == PackageManager.PERMISSION_GRANTED
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
     }
 }

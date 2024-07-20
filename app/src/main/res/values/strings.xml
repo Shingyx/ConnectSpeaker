@@ -19,11 +19,17 @@
     <string name="error_bluetooth_disabled">Bluetooth is turned off. Please turn Bluetooth on then try again.</string>
     <string name="error_speaker_unpaired">Could not find %1$s. Has it been unpaired?</string>
     <string name="error_null_bluetooth_a2dp">Checking Bluetooth audio connections has failed.</string>
-    <string name="error_toggling_already_in_progress">Toggling %1$s already in progress</string>
+    <string name="error_connecting_already_in_progress">Connecting %1$s already in progress</string>
     <string name="error_timed_out">Timed out toggling %1$s\'s connection.</string>
     <string name="error_unknown">Unknown error.</string>
     <string name="error_connecting_to_speaker_failed">Failed to connect to %1$s.</string>
     <string name="error_disconnecting_from_speaker_failed">Failed to disconnect from %1$s.</string>
+    <string name="error_already_connected">Already connected to %1$s.</string>
+    <string name="error_already_disconnected">Already disconnected from %1$s.</string>
 
     <string name="create_shortcut_choose_speaker">Choose speaker for widget</string>
+    <string name="connect_action">Action</string>
+    <string name="connect_action_toggle">Toggle</string>
+    <string name="connect_action_connect">Connect</string>
+    <string name="connect_action_disconnect">Disconnect</string>
 </resources>
