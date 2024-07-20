@@ -6,13 +6,9 @@ data class BluetoothDeviceInfo(
     val name: String,
     val address: String,
 ) : Comparable<BluetoothDeviceInfo> {
-    override fun toString(): String {
-        return name
-    }
+    override fun toString(): String = name
 
-    override fun compareTo(other: BluetoothDeviceInfo): Int {
-        return name.compareTo(other.name, true)
-    }
+    override fun compareTo(other: BluetoothDeviceInfo): Int = name.compareTo(other.name, true)
 
     fun addToIntent(intent: Intent) {
         intent.putExtra(EXTRA_NAME, name)

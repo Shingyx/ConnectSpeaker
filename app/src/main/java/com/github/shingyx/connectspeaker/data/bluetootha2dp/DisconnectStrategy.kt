@@ -16,7 +16,8 @@ class DisconnectStrategy(
     @StringRes
     override val failureMessageResId: Int = R.string.error_disconnecting_from_speaker_failed
 
-    override suspend fun connectionMethod(device: BluetoothDevice, timeout: Long): Boolean {
-        return bluetoothA2dpConnector.disconnectDevice(device, timeout)
-    }
+    override suspend fun connectionMethod(
+        device: BluetoothDevice,
+        timeout: Long,
+    ): Boolean = bluetoothA2dpConnector.disconnectDevice(device, timeout)
 }

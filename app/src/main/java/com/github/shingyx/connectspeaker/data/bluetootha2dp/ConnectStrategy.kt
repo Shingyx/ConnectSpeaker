@@ -16,7 +16,8 @@ class ConnectStrategy(
     @StringRes
     override val failureMessageResId: Int = R.string.error_connecting_to_speaker_failed
 
-    override suspend fun connectionMethod(device: BluetoothDevice, timeout: Long): Boolean {
-        return bluetoothA2dpConnector.connectDevice(device, timeout)
-    }
+    override suspend fun connectionMethod(
+        device: BluetoothDevice,
+        timeout: Long,
+    ): Boolean = bluetoothA2dpConnector.connectDevice(device, timeout)
 }

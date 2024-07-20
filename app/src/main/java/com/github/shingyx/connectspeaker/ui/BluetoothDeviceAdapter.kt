@@ -13,7 +13,8 @@ import com.github.shingyx.connectspeaker.data.BluetoothDeviceInfo
 
 class BluetoothDeviceAdapter(
     private val activity: Activity,
-) : BaseAdapter(), Filterable {
+) : BaseAdapter(),
+    Filterable {
     private val devices = mutableListOf<BluetoothDeviceInfo>()
     private val filter = NoFilter()
 
@@ -23,44 +24,42 @@ class BluetoothDeviceAdapter(
         notifyDataSetChanged()
     }
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view = convertView
-            ?: activity.layoutInflater.inflate(R.layout.dropdown_menu_popup_item, parent, false)
+    override fun getView(
+        position: Int,
+        convertView: View?,
+        parent: ViewGroup?,
+    ): View {
+        val view =
+            convertView
+                ?: activity.layoutInflater.inflate(R.layout.dropdown_menu_popup_item, parent, false)
         (view as TextView).text = devices[position].toString()
         return view
     }
 
-    override fun getItem(position: Int): BluetoothDeviceInfo {
-        return devices[position]
-    }
+    override fun getItem(position: Int): BluetoothDeviceInfo = devices[position]
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
+    override fun getItemId(position: Int): Long = position.toLong()
 
-    override fun getCount(): Int {
-        return devices.size
-    }
+    override fun getCount(): Int = devices.size
 
-    override fun getFilter(): Filter {
-        return filter
-    }
+    override fun getFilter(): Filter = filter
 
-    fun onItemClick(onItemClick: (item: BluetoothDeviceInfo) -> Unit): AdapterView.OnItemClickListener {
-        return AdapterView.OnItemClickListener { _, _, position, _ ->
+    fun onItemClick(onItemClick: (item: BluetoothDeviceInfo) -> Unit): AdapterView.OnItemClickListener =
+        AdapterView.OnItemClickListener { _, _, position, _ ->
             onItemClick.invoke(getItem(position))
         }
-    }
 
     private inner class NoFilter : Filter() {
-        override fun performFiltering(constraint: CharSequence?): FilterResults {
-            return FilterResults().apply {
+        override fun performFiltering(constraint: CharSequence?): FilterResults =
+            FilterResults().apply {
                 values = devices
                 count = devices.size
             }
-        }
 
-        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+        override fun publishResults(
+            constraint: CharSequence?,
+            results: FilterResults?,
+        ) {
             notifyDataSetChanged()
         }
     }

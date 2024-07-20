@@ -7,5 +7,8 @@ interface IConnectionStrategy {
     val successMessageResId: Int
     val failureMessageResId: Int
 
-    suspend fun connectionMethod(device: BluetoothDevice, timeout: Long): Boolean
+    suspend fun connectionMethod(
+        device: BluetoothDevice,
+        timeout: Long,
+    ): Boolean
 }

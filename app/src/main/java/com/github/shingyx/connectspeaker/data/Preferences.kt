@@ -17,7 +17,8 @@ object Preferences {
             return BluetoothDeviceInfo(name, address)
         }
         set(value) {
-            sharedPreferences.edit()
+            sharedPreferences
+                .edit()
                 .putString(KEY_DEVICE_NAME, value?.name)
                 .putString(KEY_DEVICE_ADDRESS, value?.address)
                 .apply()

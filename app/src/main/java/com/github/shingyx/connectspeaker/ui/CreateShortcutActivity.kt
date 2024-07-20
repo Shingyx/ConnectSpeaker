@@ -30,15 +30,17 @@ class CreateShortcutActivity : AppCompatActivity() {
             return startActivity(intent)
         }
 
-        val adapter = createBluetoothDeviceAdapter()
-            ?: return finish()
+        val adapter =
+            createBluetoothDeviceAdapter()
+                ?: return finish()
 
         binding.speakerList.adapter = adapter
-        binding.speakerList.onItemClickListener = adapter.onItemClick { item ->
-            val intent = ShortcutActivity.createShortcutIntent(this, item)
-            setResult(Activity.RESULT_OK, intent)
-            finish()
-        }
+        binding.speakerList.onItemClickListener =
+            adapter.onItemClick { item ->
+                val intent = ShortcutActivity.createShortcutIntent(this, item)
+                setResult(Activity.RESULT_OK, intent)
+                finish()
+            }
     }
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")

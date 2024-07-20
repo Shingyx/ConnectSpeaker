@@ -36,11 +36,12 @@ class ConnectSpeakerClient private constructor(
                 toggleConnectionInternal()
             }
         } catch (e: Exception) {
-            val messageResId = when (e) {
-                is ExceptionWithStringRes -> e.stringResId
-                is TimeoutCancellationException -> R.string.error_timed_out
-                else -> R.string.error_unknown
-            }
+            val messageResId =
+                when (e) {
+                    is ExceptionWithStringRes -> e.stringResId
+                    is TimeoutCancellationException -> R.string.error_timed_out
+                    else -> R.string.error_unknown
+                }
             reportProgressWithResId(messageResId)
         }
     }
@@ -49,23 +50,28 @@ class ConnectSpeakerClient private constructor(
     private suspend fun toggleConnectionInternal() {
         reportProgressWithResId(R.string.starting)
 
-        val bluetoothAdapter = context.getSystemService(BluetoothManager::class.java).adapter
-            ?.takeIf { it.isEnabled }
-            ?: throw ExceptionWithStringRes("Bluetooth disabled", R.string.error_bluetooth_disabled)
+        val bluetoothAdapter =
+            context
+                .getSystemService(BluetoothManager::class.java)
+                .adapter
+                ?.takeIf { it.isEnabled }
+                ?: throw ExceptionWithStringRes("Bluetooth disabled", R.string.error_bluetooth_disabled)
 
-        val device = bluetoothAdapter.bondedDevices.find { it.address == deviceInfo.address }
-            ?: throw ExceptionWithStringRes("Speaker not paired", R.string.error_speaker_unpaired)
+        val device =
+            bluetoothAdapter.bondedDevices.find { it.address == deviceInfo.address }
+                ?: throw ExceptionWithStringRes("Speaker not paired", R.string.error_speaker_unpaired)
 
         val bluetoothA2dp = getBluetoothA2dpService(bluetoothAdapter)
         val isConnected = bluetoothA2dp.connectedDevices.contains(device)
 
         val bluetoothA2dpConnector = BluetoothA2dpConnector(context, bluetoothA2dp)
 
-        val connectionStrategy = if (!isConnected) {
-            ConnectStrategy(bluetoothA2dpConnector)
-        } else {
-            DisconnectStrategy(bluetoothA2dpConnector)
-        }
+        val connectionStrategy =
+            if (!isConnected) {
+                ConnectStrategy(bluetoothA2dpConnector)
+            } else {
+                DisconnectStrategy(bluetoothA2dpConnector)
+            }
         applyConnectionStrategy(connectionStrategy, device)
     }
 
@@ -89,7 +95,10 @@ class ConnectSpeakerClient private constructor(
         bluetoothAdapter.getProfileProxy(
             context,
             object : BluetoothProfile.ServiceListener {
-                override fun onServiceConnected(profile: Int, proxy: BluetoothProfile?) {
+                override fun onServiceConnected(
+                    profile: Int,
+                    proxy: BluetoothProfile?,
+                ) {
                     if (proxy != null && profile == BluetoothProfile.A2DP) {
                         deferred.complete(proxy as BluetoothA2dp)
                     }
@@ -107,7 +116,9 @@ class ConnectSpeakerClient private constructor(
             )
     }
 
-    private fun reportProgressWithResId(@StringRes messageResId: Int) {
+    private fun reportProgressWithResId(
+        @StringRes messageResId: Int,
+    ) {
         val progressMessage = context.getString(messageResId, deviceInfo.name)
         reportProgress(progressMessage)
     }
@@ -142,9 +153,12 @@ class ConnectSpeakerClient private constructor(
         @SuppressLint("MissingPermission")
         fun getPairedDevicesInfo(context: Context): List<BluetoothDeviceInfo>? {
             try {
-                val bondedDevices = context.getSystemService(BluetoothManager::class.java).adapter
-                    ?.takeIf { it.isEnabled }
-                    ?.bondedDevices
+                val bondedDevices =
+                    context
+                        .getSystemService(BluetoothManager::class.java)
+                        .adapter
+                        ?.takeIf { it.isEnabled }
+                        ?.bondedDevices
 
                 if (bondedDevices != null) {
                     return bondedDevices.map { BluetoothDeviceInfo(it.name, it.address) }.sorted()
@@ -155,10 +169,11 @@ class ConnectSpeakerClient private constructor(
             return null
         }
 
-        fun checkBluetoothConnectPermission(context: Context): Boolean {
-            return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || ActivityCompat.checkSelfPermission(
-                context, Manifest.permission.BLUETOOTH_CONNECT
-            ) == PackageManager.PERMISSION_GRANTED
-        }
+        fun checkBluetoothConnectPermission(context: Context): Boolean =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+                ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                ) == PackageManager.PERMISSION_GRANTED
     }
 }

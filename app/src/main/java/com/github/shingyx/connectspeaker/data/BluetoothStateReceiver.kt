@@ -9,7 +9,10 @@ import android.content.IntentFilter
 class BluetoothStateReceiver(
     private val onStateChanged: () -> Unit,
 ) : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         if (intent.action == BluetoothAdapter.ACTION_STATE_CHANGED) {
             val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0)
             if (state == BluetoothAdapter.STATE_OFF || state == BluetoothAdapter.STATE_ON) {
@@ -19,8 +22,6 @@ class BluetoothStateReceiver(
     }
 
     companion object {
-        fun intentFilter(): IntentFilter {
-            return IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        }
+        fun intentFilter(): IntentFilter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
     }
 }

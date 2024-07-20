@@ -14,7 +14,9 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class ShortcutActivity : AppCompatActivity(), CoroutineScope by MainScope() {
+class ShortcutActivity :
+    AppCompatActivity(),
+    CoroutineScope by MainScope() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         finish() // Finish ASAP, or multiple tasks could appear
@@ -48,9 +50,10 @@ class ShortcutActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     private fun updateToast(text: String) {
         toast?.cancel()
-        toast = Toast.makeText(this, text, Toast.LENGTH_LONG).also {
-            it.show()
-        }
+        toast =
+            Toast.makeText(this, text, Toast.LENGTH_LONG).also {
+                it.show()
+            }
     }
 
     companion object {
