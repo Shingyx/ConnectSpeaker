@@ -39,7 +39,7 @@ class BluetoothA2dpConnector(
             context,
             stateReceiver,
             BluetoothA2dpConnectionStateReceiver.intentFilter(),
-            ContextCompat.RECEIVER_NOT_EXPORTED,
+            ContextCompat.RECEIVER_EXPORTED,
         )
 
         val methodName = if (shouldConnect) CONNECT_METHOD_NAME else DISCONNECT_METHOD_NAME
