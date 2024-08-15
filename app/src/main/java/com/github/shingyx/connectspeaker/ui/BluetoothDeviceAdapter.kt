@@ -3,8 +3,6 @@ package com.github.shingyx.connectspeaker.ui
 import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.BaseAdapter
 import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
@@ -13,7 +11,7 @@ import com.github.shingyx.connectspeaker.data.BluetoothDeviceInfo
 
 class BluetoothDeviceAdapter(
     private val activity: Activity,
-) : BaseAdapter(),
+) : TypedAdapter<BluetoothDeviceInfo>(),
     Filterable {
     private val devices = mutableListOf<BluetoothDeviceInfo>()
     private val filter = NoFilter()
@@ -43,11 +41,6 @@ class BluetoothDeviceAdapter(
     override fun getCount(): Int = devices.size
 
     override fun getFilter(): Filter = filter
-
-    fun onItemClick(onItemClick: (item: BluetoothDeviceInfo) -> Unit): AdapterView.OnItemClickListener =
-        AdapterView.OnItemClickListener { _, _, position, _ ->
-            onItemClick.invoke(getItem(position))
-        }
 
     private inner class NoFilter : Filter() {
         override fun performFiltering(constraint: CharSequence?): FilterResults =
